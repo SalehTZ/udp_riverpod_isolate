@@ -1,0 +1,30 @@
+name: udp_ws_riverpod_isolate
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  chat_bubbles: ^1.6.0
+  device_info_plus: ^10.1.2
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  riverpod_annotation: ^2.3.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  riverpod_generator: ^2.4.2
+  build_runner: ^2.4.12
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.12
+  hive_generator: ^2.0.1
+
+flutter:
+  uses-material-design: true
