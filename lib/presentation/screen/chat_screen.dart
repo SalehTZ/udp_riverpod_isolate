@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../application/providers/device_id_provider.dart';
-import '../../application/providers/socket_provider.dart';
+import '../../application/providers/udp_communication.dart';
 import '../../domain/models/messages_model.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -18,25 +18,23 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   late AsyncValue<String?> deviceIdAsync;
-  late String? deviceId;
+  String? deviceId;
   String? udpMessage;
-  UdpSocketNotifier? udpMessageProvider;
-  List<Map<String, dynamic>> messages = [
-    {'userId': 'user1', 'message': 'Hello1!'},
-    {'userId': 'user1', 'message': 'Hello2!'},
-    {'userId': 'user2', 'message': 'Hi there!'},
-    {'userId': 'user1', 'message': 'How are you?'},
-    {'userId': 'user2', 'message': 'I am good, thanks!'},
-    // Add more messages as needed
-  ];
   final Box<MessageModel> messagesBox = Hive.box<MessageModel>('messagesBox');
   final _messageTextController = TextEditingController();
+  late UdpCommunication udpCom;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    ref.read(udpCommunicationProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
     deviceIdAsync = ref.watch(getDeviceIdProvider);
-    udpMessage = ref.watch(udpSocketProvider);
-    udpMessageProvider = ref.watch(udpSocketProvider.notifier);
+    ref.watch(udpCommunicationProvider);
+    udpCom = ref.watch(udpCommunicationProvider.notifier);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -53,11 +51,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           const SizedBox(height: 16),
 
           Expanded(
-            child: ValueListenableBuilder(
+            child: ValueListenableBuilder<Box<MessageModel>>(
                 valueListenable: messagesBox.listenable(),
                 builder: (context, Box<MessageModel> box, _) {
+                  final messages = box.values.toList();
+
                   // if there was no message
-                  if (box.values.isEmpty) {
+                  if (messages.isEmpty) {
                     return const Center(child: Text('No messages'));
                   }
 
@@ -72,21 +72,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       if (index == messages.length - 1) {
                         // Last message in the list
                         hasTail = true;
-                      } else if (messages[index]['userId'] !=
-                          messages[index + 1]['userId']) {
+                      } else if (messages[index].userId !=
+                          messages[index + 1].userId) {
                         // Last message of the current user
                         hasTail = true;
                       }
 
                       return BubbleSpecialThree(
-                        text: messages[index]['message'],
+                        text: message.message,
                         tail: hasTail,
                         color: isSender
-                            ? const Color(0xFFE8E8EE)
-                            : const Color(0xFF1B97F3),
+                            ? const Color(0xFF1B97F3)
+                            : const Color(0xFFE8E8EE),
                         isSender: isSender,
-                        textStyle:
-                            const TextStyle(color: Colors.white, fontSize: 16),
+                        textStyle: TextStyle(
+                            color: isSender ? Colors.white : Colors.black,
+                            fontSize: 16),
                       );
                     },
                   );
@@ -97,7 +98,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           TextField(
             controller: _messageTextController,
             onSubmitted: (text) {
-              // udpMessageProvider?.sendMessage(text);
+              udpCom.sendMessage(text, '127.0.0.1');
 
               _addMessage();
 
