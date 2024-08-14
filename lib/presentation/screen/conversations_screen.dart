@@ -18,6 +18,7 @@ class ConversationsScreen extends ConsumerStatefulWidget {
 class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
   late UdpCommunication udpProviderNotifier;
   late AsyncValue<void> udpProvider;
+
   List<InternetAddress>? clients;
 
   @override
