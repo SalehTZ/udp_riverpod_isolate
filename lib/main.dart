@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:udp_ws_riverpod_isolate/domain/models/messages_model.dart';
 
 import 'application/providers/device_id_provider.dart';
+import 'domain/models/messages_model.dart';
 import 'presentation/screen/home_screen.dart';
 
 void main() async {
